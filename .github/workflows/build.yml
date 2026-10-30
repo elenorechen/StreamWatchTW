@@ -46,7 +46,7 @@ jobs:
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
         run: |
           chmod +x gradlew
-          ./gradlew --no-daemon assembleRelease
+          ./gradlew --no-daemon :app:assembleRelease
           cp app/build/outputs/apk/release/app-release.apk "StreamWatchTW-${VERSION_NAME}.apk"
 
       - name: 上傳 APK（Actions 頁面下載）

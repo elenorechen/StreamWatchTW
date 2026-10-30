@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "StreamWatchTW"
 include(":app")
+include(":fakeplayer") // 只給自動測試用
