@@ -1,0 +1,67 @@
+name: 打包 APK
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: 準備簽章金鑰（有設定 Secrets 才會用）
+        env:
+          SIGNING_KEYSTORE_B64: ${{ secrets.SIGNING_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$SIGNING_KEYSTORE_B64" ]; then
+            echo "$SIGNING_KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+            echo "SIGNING_KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+            echo "使用正式簽章金鑰"
+          else
+            echo "沒有設定 SIGNING_KEYSTORE_B64，改用 debug 金鑰"
+          fi
+
+      - name: 設定版本號
+        run: |
+          echo "VERSION_CODE=${{ github.run_number }}" >> "$GITHUB_ENV"
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            echo "VERSION_NAME=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+          else
+            echo "VERSION_NAME=1.0.${{ github.run_number }}" >> "$GITHUB_ENV"
+          fi
+
+      - name: 打包
+        env:
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleRelease
+          cp app/build/outputs/apk/release/app-release.apk "StreamWatchTW-${VERSION_NAME}.apk"
+
+      - name: 上傳 APK（Actions 頁面下載）
+        uses: actions/upload-artifact@v4
+        with:
+          name: StreamWatchTW-${{ env.VERSION_NAME }}
+          path: StreamWatchTW-*.apk
+
+      - name: 建立公開下載頁（推 v 開頭的 tag 時）
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: StreamWatchTW-*.apk
+          body: |
+            刷歌守望 ${{ env.VERSION_NAME }}
+            下載下方的 APK，安裝到刷歌手機。使用說明請看專案首頁。
