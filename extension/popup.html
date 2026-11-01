@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <title>刷歌守望</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <div class="eyebrow">STREAM WATCH · Melon 網頁版</div>
+    <h1>刷歌守望</h1>
+    <p class="sub">Melon 網頁版停止播放時，通知你的電腦和手機。</p>
+  </header>
+
+  <button id="master" class="master"></button>
+  <p id="masterHint" class="hint center"></p>
+
+  <section class="card" id="statusCard">
+    <div class="row head">
+      <span class="melon-dot"></span>
+      <strong>Melon</strong>
+      <span id="tabCount" class="muted small"></span>
+    </div>
+    <span id="chip" class="chip"></span>
+    <p id="detail" class="detail"></p>
+    <button id="focus" class="btn green">切到 Melon 分頁</button>
+    <button id="pause" class="btn purple"></button>
+    <label class="row toggle">
+      <span>恢復播放時自動重新監控</span>
+      <input type="checkbox" id="autoResume">
+    </label>
+  </section>
+
+  <h2>通知設定</h2>
+  <section class="card">
+    <label class="row">
+      <span>停止多久才通知</span>
+      <select id="thresholdSec">
+        <option value="15">15 秒</option>
+        <option value="30">30 秒</option>
+        <option value="60">1 分鐘</option>
+        <option value="120">2 分鐘</option>
+        <option value="180">3 分鐘</option>
+        <option value="300">5 分鐘</option>
+      </select>
+    </label>
+    <label class="row">
+      <span>重複提醒間隔</span>
+      <select id="repeatMin">
+        <option value="1">1 分鐘</option>
+        <option value="3">3 分鐘</option>
+        <option value="5">5 分鐘</option>
+        <option value="10">10 分鐘</option>
+        <option value="15">15 分鐘</option>
+      </select>
+    </label>
+    <label class="row">
+      <span>同一次停止最多提醒</span>
+      <select id="maxAlerts">
+        <option value="1">1 次</option>
+        <option value="2">2 次</option>
+        <option value="3">3 次</option>
+        <option value="5">5 次</option>
+        <option value="10">10 次</option>
+      </select>
+    </label>
+    <label class="row toggle">
+      <span>恢復播放時通知</span>
+      <input type="checkbox" id="notifyRecovery">
+    </label>
+    <button id="testLocal" class="btn green">在這台電腦測試通知</button>
+  </section>
+
+  <h2>傳送到手機</h2>
+  <section class="card">
+    <label class="row toggle">
+      <span>傳送通知到手機（ntfy）</span>
+      <input type="checkbox" id="remoteEnabled">
+    </label>
+    <label class="field">
+      <span class="muted small">這台電腦的名稱</span>
+      <input type="text" id="deviceName" maxlength="30">
+    </label>
+    <label class="field">
+      <span class="muted small">連結代碼（可以貼上手機版刷歌守望的代碼，兩邊就會傳到同一個地方）</span>
+      <input type="text" id="topic" class="mono" spellcheck="false">
+    </label>
+    <p class="warn small">🔒 代碼不要公開，知道代碼的人都收得到你的通知。</p>
+    <div class="row gap">
+      <button id="copyTopic" class="btn purple">複製代碼</button>
+      <button id="newTopic" class="btn ghost">產生新代碼</button>
+    </div>
+    <button id="testRemote" class="btn green">傳送測試通知到手機</button>
+    <p class="muted small">手機安裝 ntfy App →「＋」→ 主題貼上連結代碼（伺服器用 ntfy.sh）。</p>
+    <p id="toast" class="toast"></p>
+  </section>
+
+  <p class="foot small muted">
+    ※ 只會提醒，不會自動幫你恢復播放。<br>
+    ※ 只讀取 Melon 網頁的播放狀態和歌名，不讀取其他網頁。<br>
+    ※ 電腦休眠或瀏覽器關掉時無法通知，請把電腦設成不休眠。
+  </p>
+
+  <script src="popup.js"></script>
+</body>
+</html>

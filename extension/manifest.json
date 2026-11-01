@@ -1,0 +1,43 @@
+{
+  "manifest_version": 3,
+  "name": "刷歌守望（Melon 網頁版）",
+  "short_name": "刷歌守望",
+  "version": "1.0.0",
+  "description": "Melon 網頁版停止播放時，通知你的電腦和手機。粉絲非營利自製工具。",
+  "minimum_chrome_version": "111",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "刷歌守望",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["tabs", "storage", "alarms", "notifications"],
+  "host_permissions": ["*://*.melon.com/*", "https://ntfy.sh/*"],
+  "optional_host_permissions": ["https://*/*"],
+  "content_scripts": [
+    {
+      "matches": ["*://*.melon.com/*"],
+      "js": ["content-main.js"],
+      "world": "MAIN",
+      "run_at": "document_start",
+      "all_frames": true
+    },
+    {
+      "matches": ["*://*.melon.com/*"],
+      "js": ["content-bridge.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ]
+}

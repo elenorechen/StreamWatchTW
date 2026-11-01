@@ -49,17 +49,27 @@ jobs:
           ./gradlew --no-daemon :app:assembleRelease
           cp app/build/outputs/apk/release/app-release.apk "StreamWatchTW-${VERSION_NAME}.apk"
 
-      - name: 上傳 APK（Actions 頁面下載）
+      - name: 打包電腦版（Chrome 擴充功能）
+        run: |
+          # Chrome 的版本號只能是數字和點
+          EXT_VERSION=$(echo "$VERSION_NAME" | grep -oE '^[0-9]+(\.[0-9]+){0,3}' || echo "1.0.0")
+          mkdir -p dist/StreamWatchTW-Chrome
+          cp -r extension/* dist/StreamWatchTW-Chrome/
+          jq --arg v "$EXT_VERSION" '.version = $v' extension/manifest.json > dist/StreamWatchTW-Chrome/manifest.json
+          (cd dist && zip -qr "../StreamWatchTW-Chrome-${VERSION_NAME}.zip" StreamWatchTW-Chrome)
+
+      - name: 上傳 APK 和電腦版（Actions 頁面下載）
         uses: actions/upload-artifact@v4
         with:
           name: StreamWatchTW-${{ env.VERSION_NAME }}
-          path: StreamWatchTW-*.apk
+          path: |
+            StreamWatchTW-*.apk
+            StreamWatchTW-Chrome-*.zip
 
-      - name: 建立公開下載頁（推 v 開頭的 tag 時）
+      - name: 放到公開下載頁（推 v 開頭的 tag 時）
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: StreamWatchTW-*.apk
-          body: |
-            刷歌守望 ${{ env.VERSION_NAME }}
-            下載下方的 APK，安裝到刷歌手機。使用說明請看專案首頁。
+          files: |
+            StreamWatchTW-*.apk
+            StreamWatchTW-Chrome-*.zip

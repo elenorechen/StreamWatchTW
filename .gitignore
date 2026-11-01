@@ -5,3 +5,6 @@ local.properties
 *.keystore
 .idea/
 *.iml
+node_modules/
+ext-test-results/
+test-results/
