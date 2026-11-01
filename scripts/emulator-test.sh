@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 在虛擬 Android 手機上自動測試刷歌守望。
+# 在虛擬 Android 手機上自動測試刷瓜小幫手。
 # 由 .github/workflows/emulator-test.yml 呼叫，結果寫到 test-results/。
 set -u
 
@@ -42,14 +42,14 @@ wait_notif() {
 
 check_alive() {
   if adb logcat -d -b crash 2>/dev/null | grep -q "$APP"; then
-    fail "刷歌守望發生閃退（$1）"
+    fail "刷瓜小幫手發生閃退（$1）"
     adb logcat -d -b crash > "$OUT/crash-log.txt"
   else
     pass "沒有閃退（$1）"
   fi
 }
 
-echo "# 刷歌守望 自動測試報告" > "$REPORT"
+echo "# 刷瓜小幫手 自動測試報告" > "$REPORT"
 log ""
 log "虛擬手機：Android $(adb shell getprop ro.build.version.release | tr -d '\r')（API $(adb shell getprop ro.build.version.sdk | tr -d '\r')）"
 log ""
@@ -60,7 +60,7 @@ adb shell svc power stayon true || true
 
 # ---------- 安裝 ----------
 log "## 1. 安裝"
-if adb install -r -g app/build/outputs/apk/debug/app-debug.apk >/dev/null; then pass "安裝刷歌守望"; else fail "安裝刷歌守望"; fi
+if adb install -r -g app/build/outputs/apk/debug/app-debug.apk >/dev/null; then pass "安裝刷瓜小幫手"; else fail "安裝刷瓜小幫手"; fi
 if adb install -r fakeplayer/build/outputs/apk/debug/fakeplayer-debug.apk >/dev/null; then pass "安裝測試播放器"; else fail "安裝測試播放器"; fi
 adb shell pm grant "$APP" android.permission.POST_NOTIFICATIONS 2>/dev/null || true
 
@@ -119,7 +119,7 @@ player playing
 app_front
 sleep 4
 shot "playing"
-if has_notif "刷歌守望監控中"; then pass "常駐「監控中」通知有出現"; else fail "沒有看到常駐「監控中」通知"; fi
+if has_notif "刷瓜小幫手監控中"; then pass "常駐「監控中」通知有出現"; else fail "沒有看到常駐「監控中」通知"; fi
 check_alive "播放中"
 
 # ---------- 停止 → 通知 ----------

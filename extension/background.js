@@ -1,4 +1,4 @@
-// 刷歌守望（Melon 網頁版）背景程式：判斷 Melon 有沒有在播放，時間到了就通知。
+// 刷瓜小幫手（Melon 網頁版）背景程式：判斷 Melon 有沒有在播放，時間到了就通知。
 
 const MELON_URLS = ["*://*.melon.com/*"];
 const DEFAULT_SERVER = "https://ntfy.sh";
@@ -211,7 +211,7 @@ async function updateBadge(rt) {
   const [text, color] = map[rt.state] || ["", "#8A8478"];
   await chrome.action.setBadgeText({ text });
   await chrome.action.setBadgeBackgroundColor({ color });
-  await chrome.action.setTitle({ title: `刷歌守望：${LABELS[rt.state] || ""}` });
+  await chrome.action.setTitle({ title: `刷瓜小幫手：${LABELS[rt.state] || ""}` });
 }
 
 // ---------- 通知 ----------
@@ -387,12 +387,12 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       return { topic };
     },
     testLocal: async () => {
-      await notify(INFO_ID, "🔔 刷歌守望測試", "看得到這則就代表電腦通知正常。", false);
+      await notify(INFO_ID, "🔔 刷瓜小幫手測試", "看得到這則就代表電腦通知正常。", false);
       return {};
     },
     testRemote: async () => {
       const s = await getSettings();
-      return sendRemote(s, "🔔 刷歌守望測試", "手機收得到這則，就代表設定成功。", 4, ["bell"], true);
+      return sendRemote(s, "🔔 刷瓜小幫手測試", "手機收得到這則，就代表設定成功。", 4, ["bell"], true);
     },
     focusMelon: async () => {
       await focusMelon();

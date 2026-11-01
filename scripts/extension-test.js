@@ -1,4 +1,4 @@
-// 在無頭 Chrome 裡測試刷歌守望擴充功能。
+// 在無頭 Chrome 裡測試刷瓜小幫手擴充功能。
 // 用假的 melon.com 網頁（攔截網址，不會真的連到 Melon）模擬：播放 → 暫停 → 通知 → 恢復 → 緩衝 → 關分頁。
 // 用法：node scripts/extension-test.js <輸出資料夾>
 const { chromium } = require("playwright");
@@ -64,7 +64,7 @@ const FAKE_PAGE = `<!doctype html><html><head><meta charset="utf-8"><title>Melon
   let sw = ctx.serviceWorkers()[0];
   if (!sw) sw = await ctx.waitForEvent("serviceworker", { timeout: 20000 });
   const extId = sw.url().split("/")[2];
-  log("# 刷歌守望 Chrome 擴充功能 測試報告");
+  log("# 刷瓜小幫手 Chrome 擴充功能 測試報告");
   log("");
   log(`瀏覽器：Chromium ${ctx.browser() ? ctx.browser().version() : ""}`.trim());
   log("");

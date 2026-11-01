@@ -74,7 +74,7 @@ class MainActivity : Activity() {
 
         // ---- 標題 ----
         root.addView(label("STREAM WATCH · 台灣中文版", 11f, Pal.sub, bold = true))
-        root.addView(label("刷歌守望", 28f, Pal.text, bold = true).margins(this, top = 4) )
+        root.addView(label("刷瓜小幫手", 28f, Pal.text, bold = true).margins(this, top = 4) )
         root.addView(label("刷歌手機停止播放時，通知你的手機和電腦。", 14f, Pal.sub).margins(this, top = 4, bottom = 14))
 
         // ---- 初次設定檢查 ----
@@ -181,7 +181,7 @@ class MainActivity : Activity() {
         })
         if (!a) {
             box.addView(label(
-                "找到「刷歌守望」並開啟。如果開關是灰色按不下去：到手機「設定 → 應用程式 → 刷歌守望」，按右上角「⋮」→「允許受限制的設定」，再回來開。",
+                "找到「刷瓜小幫手」並開啟。如果開關是灰色按不下去：到手機「設定 → 應用程式 → 刷瓜小幫手」，按右上角「⋮」→「允許受限制的設定」，再回來開。",
                 12f, Pal.warnText
             ).margins(this, top = 4))
             box.addView(label("開啟 App 資訊頁 ›", 13f, Pal.purpleText, bold = true).apply {
@@ -537,7 +537,7 @@ class MainActivity : Activity() {
         remoteBox.addView(pillButton("遠端通知測試", Pal.green, Pal.greenText) {
             toast("送出中…")
             Alerts.sendRemote(
-                prefs, "🔔 刷歌守望測試", "日常手機和電腦收得到這則，就代表設定成功。",
+                prefs, "🔔 刷瓜小幫手測試", "日常手機和電腦收得到這則，就代表設定成功。",
                 priority = 4, tags = listOf("bell"), force = true
             ) { ok, msg ->
                 toast(if (ok) "測試通知已送出，去日常手機和電腦看看" else msg)
@@ -607,7 +607,7 @@ class MainActivity : Activity() {
     /** 用分享功能把代碼傳給自己（LINE、Messenger、Email…），避免手打或截圖辨識打錯 */
     private fun shareSetup(topic: String, webUrl: String) {
         val text = """
-            刷歌守望 連結代碼（不要外流）
+            刷瓜小幫手 連結代碼（不要外流）
             $topic
 
             ▶ 日常手機：安裝 ntfy App →「＋」→ 主題貼上上面的代碼，伺服器用 ${prefs.ntfyServer}

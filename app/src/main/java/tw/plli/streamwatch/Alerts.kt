@@ -63,7 +63,7 @@ object Alerts {
         ensureChannels(ctx)
         val n = Notification.Builder(ctx, CH_STATUS)
             .setSmallIcon(R.drawable.ic_stat)
-            .setContentTitle("刷歌守望監控中")
+            .setContentTitle("刷瓜小幫手監控中")
             .setContentText("正在監控 $count 個 App")
             .setOngoing(true)
             .setContentIntent(openMainIntent(ctx))

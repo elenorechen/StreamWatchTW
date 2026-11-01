@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "刷歌守望（Melon 網頁版）",
-  "short_name": "刷歌守望",
+  "name": "刷瓜小幫手（Melon 網頁版）",
+  "short_name": "刷瓜小幫手",
   "version": "1.0.0",
   "description": "Melon 網頁版停止播放時，通知你的電腦和手機。粉絲非營利自製工具。",
   "minimum_chrome_version": "111",
@@ -12,7 +12,7 @@
     "128": "icons/icon128.png"
   },
   "action": {
-    "default_title": "刷歌守望",
+    "default_title": "刷瓜小幫手",
     "default_popup": "popup.html",
     "default_icon": {
       "16": "icons/icon16.png",
