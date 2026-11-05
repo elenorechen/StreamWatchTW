@@ -18,6 +18,13 @@ function fmt(sec) {
   return sec < 60 ? `${sec} 秒` : `${Math.floor(sec / 60)} 分 ${sec % 60} 秒`;
 }
 
+function fmtHm(sec) {
+  sec = Math.max(0, Math.round(sec));
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  return h > 0 ? `${h} 小時 ${m} 分` : m > 0 ? `${m} 分鐘` : `${sec} 秒`;
+}
+
 let settingsLoaded = false;
 let last = null;
 
@@ -79,8 +86,17 @@ async function refresh() {
   try {
     const res = await send("status");
     if (res && res.rt) render(res);
+    const st = await send("stats");
+    if (st && st.date) {
+      $("sPlay").textContent = fmtHm(st.playSec);
+      $("sLongest").textContent = fmtHm(st.longestSec);
+      $("sInt").textContent = `${st.interrupts} 次`;
+      $("sStreak").textContent = `${st.streakDays} 天`;
+    }
   } catch (_) {}
 }
+
+$("openCard").addEventListener("click", () => send("openCard"));
 
 $("master").addEventListener("click", async () => {
   await send("setActive", !(last && last.rt.active));

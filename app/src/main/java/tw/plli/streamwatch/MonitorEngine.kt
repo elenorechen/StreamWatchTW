@@ -96,6 +96,15 @@ object MonitorEngine {
             }
         }
 
+        // 刷歌紀錄：任何一個 App 在播就算播放中；全部暫停監控時不記錄
+        val shownStates = monitored.mapNotNull { statuses[it]?.state }
+        val anyPlaying = shownStates.any { it == WatchState.PLAYING }
+        val counting = prefs.monitoringActive && shownStates.any { it == WatchState.PLAYING || it.isBad }
+        try {
+            Stats.update(ctx, now, counting, anyPlaying, prefs.thresholdSec)
+        } catch (_: Exception) {
+        }
+
         if (prefs.monitoringActive) checkBattery(ctx, prefs) else {
             batteryAlerted = false
             wasCharging = null

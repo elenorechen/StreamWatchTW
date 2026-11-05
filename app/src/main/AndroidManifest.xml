@@ -46,5 +46,12 @@
         <receiver
             android:name=".AckReceiver"
             android:exported="false" />
+
+        <!-- 分享刷歌紀錄小卡用 -->
+        <provider
+            android:name=".CardProvider"
+            android:authorities="tw.plli.streamwatch.cards"
+            android:exported="false"
+            android:grantUriPermissions="true" />
     </application>
 </manifest>

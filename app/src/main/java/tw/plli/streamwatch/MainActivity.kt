@@ -39,6 +39,8 @@ class MainActivity : Activity() {
     private lateinit var appsBox: LinearLayout
     private lateinit var settingsBox: LinearLayout
     private lateinit var remoteBox: LinearLayout
+    private lateinit var statsText: TextView
+    private var pendingShowCard = false
 
     private class CardViews(
         val chip: TextView,
@@ -99,6 +101,16 @@ class MainActivity : Activity() {
         appsBox = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         root.addView(appsBox)
 
+        // ---- 刷歌紀錄 ----
+        root.addView(sectionTitle("今日刷歌紀錄"))
+        val statsBox = cardBox()
+        statsText = label("", 14f, Pal.text)
+        statsBox.addView(statsText)
+        statsBox.addView(pillButton("📸 產生分享小卡", Pal.green, Pal.greenText) { showCardDialog() }.margins(this, top = 12))
+        statsBox.addView(label("只記錄「監控中」的時間，資料只存在這支手機。", 12f, Pal.sub).margins(this, top = 8))
+        root.addView(statsBox)
+        pendingShowCard = intent?.getBooleanExtra(EXTRA_SHOW_CARD, false) == true
+
         // ---- 通知設定 ----
         root.addView(sectionTitle("通知設定"))
         settingsBox = cardBox()
@@ -130,6 +142,15 @@ class MainActivity : Activity() {
         rebuildRemote()
         handler.removeCallbacks(refresher)
         handler.post(refresher)
+        if (pendingShowCard) {
+            pendingShowCard = false
+            handler.postDelayed({ showCardDialog() }, 600)
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        if (intent.getBooleanExtra(EXTRA_SHOW_CARD, false)) pendingShowCard = true
     }
 
     override fun onPause() {
@@ -339,6 +360,7 @@ class MainActivity : Activity() {
 
     private fun refreshLive() {
         refreshSetup()
+        refreshStats()
 
         val active = prefs.monitoringActive
         masterBtn.text = if (active) "■ 停止全部監控" else "▶ 開始全部監控"
@@ -654,5 +676,77 @@ class MainActivity : Activity() {
         return box
     }
 
+    // ================= 刷歌紀錄小卡 =================
+
+    private fun refreshStats() {
+        val s = Stats.summary(this)
+        val t = s.today
+        statsText.text = buildString {
+            append("播放時數：${Stats.formatHm(t.playSec)}\n")
+            append("最長連續播放：${Stats.formatHm(t.longestSec)}\n")
+            append("中斷次數：${t.interrupts} 次")
+            if (t.recovered > 0) append("（平均 ${MonitorEngine.formatDuration(t.avgRecoverSec)}救回）")
+            append("\n連續刷歌天數：${s.streakDays} 天（每天播放滿 1 小時才算）")
+        }
+    }
+
+    private fun showCardDialog() {
+        val bmp = try {
+            StatsCard.render(Stats.summary(this))
+        } catch (e: Exception) {
+            toast("產生小卡失敗")
+            return
+        }
+        val img = ImageView(this).apply {
+            setImageBitmap(bmp)
+            adjustViewBounds = true
+            setPadding(dp(16), dp(12), dp(16), 0)
+        }
+        val b = AlertDialog.Builder(this)
+            .setTitle("刷歌紀錄小卡")
+            .setView(img)
+            .setPositiveButton("分享") { _, _ -> shareCard(bmp) }
+            .setNegativeButton("關閉", null)
+        if (Build.VERSION.SDK_INT >= 29) b.setNeutralButton("存到相簿") { _, _ -> saveCard(bmp) }
+        b.show()
+    }
+
+    private fun shareCard(bmp: android.graphics.Bitmap) {
+        try {
+            val uri = CardProvider.saveForShare(this, bmp)
+            val send = Intent(Intent.ACTION_SEND).apply {
+                type = "image/png"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                putExtra(Intent.EXTRA_TEXT, "今天也穩穩刷歌了 🍈 #刷瓜小幫手")
+                clipData = ClipData.newRawUri("刷歌紀錄小卡", uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            startActivity(Intent.createChooser(send, "分享刷歌紀錄小卡"))
+        } catch (e: Exception) {
+            toast("分享失敗")
+        }
+    }
+
+    private fun saveCard(bmp: android.graphics.Bitmap) {
+        if (Build.VERSION.SDK_INT < 29) return
+        try {
+            val values = android.content.ContentValues().apply {
+                put(android.provider.MediaStore.Images.Media.DISPLAY_NAME, "刷歌紀錄_${System.currentTimeMillis()}.png")
+                put(android.provider.MediaStore.Images.Media.MIME_TYPE, "image/png")
+                put(android.provider.MediaStore.Images.Media.RELATIVE_PATH, "Pictures/刷瓜小幫手")
+            }
+            val uri = contentResolver.insert(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+                ?: throw IllegalStateException()
+            contentResolver.openOutputStream(uri)?.use { bmp.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
+            toast("已存到相簿（刷瓜小幫手 資料夾）")
+        } catch (e: Exception) {
+            toast("儲存失敗")
+        }
+    }
+
     private fun toast(msg: String) = Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+
+    companion object {
+        const val EXTRA_SHOW_CARD = "show_card"
+    }
 }

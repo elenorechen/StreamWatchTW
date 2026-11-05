@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>刷歌紀錄小卡 · 刷瓜小幫手</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #EFE9DD;
+      color: #2E2B26;
+      font: 15px/1.5 "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 16px 40px;
+      box-sizing: border-box;
+    }
+    h1 { font-size: 20px; margin: 0 0 4px; }
+    p { margin: 0 0 16px; color: #7A746A; font-size: 13px; }
+    canvas {
+      width: min(432px, 100%);
+      height: auto;
+      border-radius: 18px;
+      box-shadow: 0 6px 24px rgba(46, 43, 38, .12);
+    }
+    .actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; justify-content: center; }
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 18px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .green { background: #DCEBDD; color: #2F5D3A; }
+    .purple { background: #E6E0F3; color: #4B3F72; }
+    #msg { min-height: 1.4em; margin-top: 10px; font-weight: 700; color: #2F5D3A; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <h1>刷歌紀錄小卡</h1>
+  <p>下載或複製後，可以直接貼到 Threads、IG 或 Discord。</p>
+  <canvas id="card" width="1080" height="1350"></canvas>
+  <div class="actions">
+    <button id="download" class="green">下載圖片</button>
+    <button id="copy" class="purple">複製圖片</button>
+  </div>
+  <div id="msg"></div>
+  <script src="stats.js"></script>
+  <script src="card.js"></script>
+</body>
+</html>

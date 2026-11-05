@@ -1,4 +1,5 @@
 // 刷瓜小幫手（Melon 網頁版）背景程式：判斷 Melon 有沒有在播放，時間到了就通知。
+importScripts("stats.js");
 
 const MELON_URLS = ["*://*.melon.com/*"];
 const DEFAULT_SERVER = "https://ntfy.sh";
@@ -187,6 +188,10 @@ async function evaluate(rt) {
   rt.detail = detail;
   rt.tabCount = tabs.length;
   rt.updatedAt = now;
+  try {
+    const counting = rt.active && shown !== "paused" && shown !== "idle";
+    await statsUpdate(rt, now, counting, shown === "playing", s.thresholdSec);
+  } catch (_) {}
   await updateBadge(rt);
   return rt;
 }
@@ -385,6 +390,15 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       const topic = newTopic();
       await chrome.storage.local.set({ topic });
       return { topic };
+    },
+    stats: async () => {
+      const rt = await getRt();
+      const { stats } = await chrome.storage.local.get({ stats: { days: {} } });
+      return statsSummary(stats.days || {}, rt.sStretch || 0);
+    },
+    openCard: async () => {
+      await chrome.tabs.create({ url: chrome.runtime.getURL("card.html") });
+      return {};
     },
     testLocal: async () => {
       await notify(INFO_ID, "🔔 刷瓜小幫手測試", "看得到這則就代表電腦通知正常。", false);

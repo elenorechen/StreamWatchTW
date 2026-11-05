@@ -180,6 +180,27 @@ else
 fi
 check_alive "音樂 App 被關掉"
 
+# ---------- 刷歌紀錄小卡 ----------
+log ""
+log "## 8-1. 刷歌紀錄小卡"
+player playing
+sleep 45
+STATS=$(adb shell "run-as $APP cat /data/data/$APP/shared_prefs/stats.xml" 2>/dev/null | tr -d '\r')
+echo "$STATS" > "$OUT/stats.xml"
+INT=$(echo "$STATS" | grep -oE '&quot;i&quot;:[0-9]+' | grep -oE '[0-9]+$' | head -1)
+PLAY=$(echo "$STATS" | grep -oE '&quot;p&quot;:[0-9]+' | grep -oE '[0-9]+$' | head -1)
+LONG=$(echo "$STATS" | grep -oE '&quot;l&quot;:[0-9]+' | grep -oE '[0-9]+$' | head -1)
+log "  - 紀錄：播放 ${PLAY:-?} 秒、最長連續 ${LONG:-?} 秒、中斷 ${INT:-?} 次"
+if [ "${PLAY:-0}" -ge 35 ]; then pass "有記錄到播放時數"; else fail "播放時數太少"; fi
+if [ "${LONG:-0}" -ge 35 ]; then pass "最長連續播放正確"; else fail "最長連續播放太短"; fi
+if [ "${INT:-0}" -ge 3 ]; then pass "記錄到 ${INT} 次中斷"; else fail "中斷次數不對（${INT:-0}）"; fi
+adb shell am start -n "$APP/.MainActivity" --ez show_card true >/dev/null
+sleep 4
+shot "stats-card"
+check_alive "產生小卡"
+adb shell input keyevent KEYCODE_BACK
+sleep 1
+
 # ---------- 設定頁截圖 ----------
 log ""
 log "## 9. 介面截圖（往下捲）"

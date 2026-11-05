@@ -101,3 +101,8 @@ input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--green-stro
 .warn { color: var(--warn); margin: 6px 0 0; }
 .toast { min-height: 1em; margin: 8px 0 0; font-size: 12px; font-weight: 700; color: var(--green-text); }
 .foot { margin-top: 14px; }
+
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.stats-grid div { background: var(--bg); border-radius: 10px; padding: 8px 10px; }
+.stats-grid span { display: block; }
+.stats-grid strong { font-size: 15px; }

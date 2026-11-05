@@ -194,7 +194,54 @@ const FAKE_PAGE = `<!doctype html><html><head><meta charset="utf-8"><title>Melon
   else fail("關掉分頁 75 秒內沒有跳出提醒");
   await shotPopup("04-popup-closed.png");
 
-  // ---------- 7. 停止監控 ----------
+  // ---------- 7. 刷歌紀錄小卡 ----------
+  log("");
+  log("## 7. 刷歌紀錄小卡");
+  // 先連續播放 40 秒
+  const melon2 = await ctx.newPage();
+  await melon2.goto("https://www.melon.com/webplayer/test.htm");
+  await waitFor(async () => { const s = await status(); return s.rt && s.rt.state === "playing"; }, 30000, 1000);
+  await sleep(40000);
+  const sum = await sw.evaluate(async () => {
+    const { stats } = await chrome.storage.local.get({ stats: { days: {} } });
+    return statsSummary(stats.days || {});
+  });
+  log(`  - 今日紀錄：播放 ${Math.round(sum.playSec)} 秒、最長連續 ${Math.round(sum.longestSec)} 秒、中斷 ${sum.interrupts} 次、救回 ${sum.recovered} 次`);
+  if (sum.playSec >= 35) pass(`有記錄到播放時數（${Math.round(sum.playSec)} 秒）`);
+  else fail(`播放時數太少（${Math.round(sum.playSec)} 秒，應該至少 35 秒）`);
+  if (sum.longestSec >= 35) pass(`最長連續播放正確（${Math.round(sum.longestSec)} 秒）`);
+  else fail(`最長連續播放太短（${Math.round(sum.longestSec)} 秒）`);
+  if (sum.interrupts >= 3) pass(`記錄到 ${sum.interrupts} 次中斷（暫停、緩衝、關分頁）`);
+  else fail(`中斷次數不對（${sum.interrupts}，應該至少 3 次）`);
+  if (sum.recovered >= 2) pass(`記錄到 ${sum.recovered} 次救回，平均 ${Math.round(sum.avgRecoverSec)} 秒`);
+  else fail(`救回次數不對（${sum.recovered}）`);
+
+  const cardPage = await ctx.newPage();
+  await cardPage.setViewportSize({ width: 520, height: 900 });
+  const shotCard = async (name) => {
+    await cardPage.goto(`chrome-extension://${extId}/card.html`);
+    await sleep(1500);
+    const dataUrl = await cardPage.evaluate(() => document.getElementById("card").toDataURL("image/png"));
+    fs.writeFileSync(path.join(OUT, name), Buffer.from(dataUrl.split(",")[1], "base64"));
+    log(`  - 小卡：\`${name}\``);
+  };
+  await shotCard("05-card-real.png");
+  pass("小卡頁面可以正常產生圖片");
+
+  // 示範用的資料（只為了看設計，不是測試結果）
+  await sw.evaluate(async () => {
+    const days = {};
+    const now = Date.now();
+    for (let k = 0; k < 9; k++) days[statsDayKey(now - k * 86400000)] = { p: 15 * 3600 + k * 977, l: 6 * 3600 + 1234, i: 2, r: 2, d: 170 };
+    days[statsDayKey(now)] = { p: 18 * 3600 + 32 * 60, l: 7 * 3600 + 5 * 60, i: 2, r: 2, d: 172 };
+    await chrome.storage.local.set({ stats: { days } });
+  });
+  await shotCard("06-card-demo.png");
+  await popup.goto(`chrome-extension://${extId}/popup.html`);
+  await sleep(1500);
+  await popup.screenshot({ path: path.join(OUT, "07-popup-stats.png"), fullPage: true });
+
+  // ---------- 8. 停止監控 ----------
   log("");
   log("## 7. 停止監控");
   await sw.evaluate(() => chrome.storage.local.set({ active: false }));
