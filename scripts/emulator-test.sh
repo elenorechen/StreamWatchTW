@@ -119,7 +119,7 @@ player playing
 app_front
 sleep 4
 shot "playing"
-if has_notif "刷瓜小幫手監控中"; then pass "常駐「監控中」通知有出現"; else fail "沒有看到常駐「監控中」通知"; fi
+if wait_notif "刷瓜小幫手監控中" 20; then pass "常駐「監控中」通知有出現"; else fail "沒有看到常駐「監控中」通知"; notif_dump > "$OUT/notif-at-step4.txt" 2>&1; fi
 check_alive "播放中"
 
 # ---------- 停止 → 通知 ----------
@@ -184,7 +184,7 @@ check_alive "音樂 App 被關掉"
 log ""
 log "## 8-1. 刷歌紀錄小卡"
 player playing
-sleep 45
+sleep 70  # 紀錄每 30 秒存一次，等它存檔
 STATS=$(adb shell "run-as $APP cat /data/data/$APP/shared_prefs/stats.xml" 2>/dev/null | tr -d '\r')
 echo "$STATS" > "$OUT/stats.xml"
 INT=$(echo "$STATS" | grep -oE '&quot;i&quot;:[0-9]+' | grep -oE '[0-9]+$' | head -1)
@@ -192,7 +192,7 @@ PLAY=$(echo "$STATS" | grep -oE '&quot;p&quot;:[0-9]+' | grep -oE '[0-9]+$' | he
 LONG=$(echo "$STATS" | grep -oE '&quot;l&quot;:[0-9]+' | grep -oE '[0-9]+$' | head -1)
 log "  - 紀錄：播放 ${PLAY:-?} 秒、最長連續 ${LONG:-?} 秒、中斷 ${INT:-?} 次"
 if [ "${PLAY:-0}" -ge 35 ]; then pass "有記錄到播放時數"; else fail "播放時數太少"; fi
-if [ "${LONG:-0}" -ge 35 ]; then pass "最長連續播放正確"; else fail "最長連續播放太短"; fi
+if [ "${LONG:-0}" -ge 50 ]; then pass "最長連續播放正確"; else fail "最長連續播放太短"; fi
 if [ "${INT:-0}" -ge 3 ]; then pass "記錄到 ${INT} 次中斷"; else fail "中斷次數不對（${INT:-0}）"; fi
 adb shell am start -n "$APP/.MainActivity" --ez show_card true >/dev/null
 sleep 4
