@@ -717,7 +717,7 @@ class MainActivity : Activity() {
             val send = Intent(Intent.ACTION_SEND).apply {
                 type = "image/png"
                 putExtra(Intent.EXTRA_STREAM, uri)
-                putExtra(Intent.EXTRA_TEXT, "今天也穩穩刷歌了 🍈 #刷瓜小幫手")
+                putExtra(Intent.EXTRA_TEXT, "今日刷歌紀錄 ☆彡 #刷瓜小幫手")
                 clipData = ClipData.newRawUri("刷歌紀錄小卡", uri)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }

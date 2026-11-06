@@ -116,9 +116,9 @@ function statsSummary(days, stretchSec = 0, nowMs = Date.now()) {
 }
 
 function statsMood(s) {
-  if (s.playSec < 1) return "今天還沒開始刷歌，等你喔";
-  if (s.playSec >= 12 * 3600 && s.interrupts === 0) return "整天零中斷，太穩了！";
-  if (s.interrupts === 0) return "今天零中斷，穩穩的！";
-  if (s.recovered > 0 && s.avgRecoverSec <= 300) return "斷了也馬上救回來，好樣的！";
-  return "今天也辛苦了，穩穩刷不要斷";
+  if (s.playSec < 1) return "今天還沒開刷唷 ☆彡";
+  if (s.playSec >= 12 * 3600 && s.interrupts === 0) return "整天零中斷！超神der ☆彡";
+  if (s.interrupts === 0) return "零中斷達成 ♡ 讚啦～";
+  if (s.recovered > 0 && s.avgRecoverSec <= 300) return "斷線秒救回 ♡ 超強der";
+  return "今日刷歌任務完成 ☆彡";
 }

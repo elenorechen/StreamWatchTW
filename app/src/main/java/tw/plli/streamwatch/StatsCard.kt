@@ -31,11 +31,11 @@ object StatsCard {
     fun mood(s: StatsSummary): String {
         val t = s.today
         return when {
-            t.playSec == 0L -> "今天還沒開始刷歌，等你喔"
-            t.playSec >= 12 * 3600 && t.interrupts == 0 -> "整天零中斷，太穩了！"
-            t.interrupts == 0 -> "今天零中斷，穩穩的！"
-            t.recovered > 0 && t.avgRecoverSec <= 300 -> "斷了也馬上救回來，好樣的！"
-            else -> "今天也辛苦了，穩穩刷不要斷"
+            t.playSec == 0L -> "今天還沒開刷唷 ☆彡"
+            t.playSec >= 12 * 3600 && t.interrupts == 0 -> "整天零中斷！超神der ☆彡"
+            t.interrupts == 0 -> "零中斷達成 ♡ 讚啦～"
+            t.recovered > 0 && t.avgRecoverSec <= 300 -> "斷線秒救回 ♡ 超強der"
+            else -> "今日刷歌任務完成 ☆彡"
         }
     }
 
@@ -79,7 +79,9 @@ object StatsCard {
             c.drawCircle(dotX, 128f, 11f, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = col })
             dotX += 30f
         }
-        c.drawText(mood(s), pad, 280f, paint(62f, TEXT, true))
+        val moodP = paint(62f, TEXT, true)
+        while (moodP.measureText(mood(s)) > W - pad * 2 && moodP.textSize > 36f) moodP.textSize -= 2f
+        c.drawText(mood(s), pad, 280f, moodP)
 
         // ---- 今日播放時數（大卡） ----
         val bigTop = 330f

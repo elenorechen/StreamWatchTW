@@ -51,7 +51,12 @@ function drawCard(ctx, s) {
     dotX += 30;
   }
   ctx.fillStyle = C.text;
-  ctx.font = font(62, true);
+  let moodSize = 62;
+  ctx.font = font(moodSize, true);
+  while (ctx.measureText(statsMood(s)).width > W - pad * 2 && moodSize > 36) {
+    moodSize -= 2;
+    ctx.font = font(moodSize, true);
+  }
   ctx.fillText(statsMood(s), pad, 280);
 
   // 今日播放時數
