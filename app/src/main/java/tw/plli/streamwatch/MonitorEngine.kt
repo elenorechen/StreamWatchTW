@@ -127,12 +127,15 @@ object MonitorEngine {
             st.acked = false
         }
         if (st.acked) return
+        // 同一個播放器已經由另一個監控中的 App 負責通知時，不重複通知
+        // （例如同時勾了 Stationhead 和 Spotify，Spotify 停了只要通知一次）
+        if (coveredByAnother(prefs, st.pkg)) return
         val elapsed = now - st.badSince
         val threshold = prefs.thresholdSec * 1000L
         val repeat = prefs.repeatMin * 60_000L
         val max = prefs.maxAlerts
 
-        val due = st.alertsSent < max && elapsed >= threshold &&
+        val due = (max == Prefs.UNLIMITED || st.alertsSent < max) && elapsed >= threshold &&
             (st.alertsSent == 0 || now - st.lastAlertAt >= repeat)
         if (!due) return
 
@@ -145,9 +148,15 @@ object MonitorEngine {
             WatchState.UNKNOWN -> "讀不到播放狀態，App 可能被關掉了。"
             else -> "播放停止了，請檢查一下。"
         }
-        val body = "$reason 已持續 ${formatDuration(elapsed / 1000)}。（第 ${st.alertsSent}/$max 次提醒）"
+        val count = if (max == Prefs.UNLIMITED) "第 ${st.alertsSent} 次提醒" else "第 ${st.alertsSent}/$max 次提醒"
+        val body = "$reason 已持續 ${formatDuration(elapsed / 1000)}。（$count）"
         Alerts.alertStopped(ctx, prefs, st.pkg, name, title, body)
     }
+
+    private fun coveredByAnother(prefs: Prefs, pkg: String): Boolean =
+        prefs.monitoredPackages.any { other ->
+            other != pkg && !prefs.isPaused(other) && pkg in (KnownApps.playsVia[other] ?: emptyList())
+        }
 
     /** 使用者按了「知道了」：這次停止不再重複提醒，恢復播放後重新計算 */
     fun ack(ctx: Context, pkg: String) {

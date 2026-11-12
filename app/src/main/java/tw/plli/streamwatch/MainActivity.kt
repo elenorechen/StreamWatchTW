@@ -412,7 +412,8 @@ class MainActivity : Activity() {
             return "已持續 ${MonitorEngine.formatDuration(elapsed)} · " +
                 (if (left > 0) "${MonitorEngine.formatDuration(left)}後通知" else "即將通知")
         }
-        return "已持續 ${MonitorEngine.formatDuration(elapsed)} · 已通知 ${st.alertsSent}/${prefs.maxAlerts} 次"
+        val sent = if (prefs.maxAlerts == Prefs.UNLIMITED) "${st.alertsSent}" else "${st.alertsSent}/${prefs.maxAlerts}"
+        return "已持續 ${MonitorEngine.formatDuration(elapsed)} · 已通知 $sent 次"
     }
 
     // ================= 選擇 App =================
@@ -465,8 +466,8 @@ class MainActivity : Activity() {
             listOf(1, 3, 5, 10, 15), { "$it 分鐘" }, prefs.repeatMin
         ) { prefs.repeatMin = it })
         settingsBox.addView(choiceRow(
-            "同一次停止最多提醒", "${prefs.maxAlerts} 次",
-            listOf(1, 2, 3, 5, 10), { "$it 次" }, prefs.maxAlerts
+            "同一次停止最多提醒", Prefs.maxAlertsLabel(prefs.maxAlerts),
+            listOf(Prefs.UNLIMITED, 1, 2, 3, 5, 10), { Prefs.maxAlertsLabel(it) }, prefs.maxAlerts
         ) { prefs.maxAlerts = it })
         settingsBox.addView(switchRow("震動", "提醒時震動", prefs.vibrate) { prefs.vibrate = it })
         settingsBox.addView(switchRow("鬧鐘音效", "用鬧鐘音量響 10 秒（刷歌手機上）", prefs.alarmSound) { prefs.alarmSound = it })

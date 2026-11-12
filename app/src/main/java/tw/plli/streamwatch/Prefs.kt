@@ -49,9 +49,9 @@ class Prefs(context: Context) {
         get() = sp.getInt("repeatMin", 5)
         set(v) = sp.edit().putInt("repeatMin", v).apply()
 
-    /** 同一次停止最多提醒幾次 */
+    /** 同一次停止最多提醒幾次；0 = 一直提醒，直到恢復播放或按「知道了」 */
     var maxAlerts: Int
-        get() = sp.getInt("maxAlerts", 2)
+        get() = sp.getInt("maxAlerts", UNLIMITED)
         set(v) = sp.edit().putInt("maxAlerts", v).apply()
 
     var alarmSound: Boolean
@@ -109,6 +109,9 @@ class Prefs(context: Context) {
 
     companion object {
         const val DEFAULT_SERVER = "https://ntfy.sh"
+        const val UNLIMITED = 0
+
+        fun maxAlertsLabel(v: Int) = if (v == UNLIMITED) "一直提醒" else "$v 次"
         private const val CHARS = "abcdefghijkmnpqrstuvwxyz23456789" // 去掉容易看錯的 l、o、0、1
 
         private fun newTopic(): String {

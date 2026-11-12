@@ -10,7 +10,7 @@ const INFO_ID = "swtw-info";
 const DEFAULTS = {
   thresholdSec: 30,
   repeatMin: 5,
-  maxAlerts: 2,
+  maxAlerts: 0, // 0 = 一直提醒，直到恢復播放或按「知道了」
   notifyRecovery: true,
   remoteEnabled: false,
   deviceName: "刷歌電腦",
@@ -159,7 +159,7 @@ async function evaluate(rt) {
     const elapsed = now - rt.badSince;
     const due =
       !rt.acked &&
-      rt.alertsSent < s.maxAlerts &&
+      (s.maxAlerts === 0 || rt.alertsSent < s.maxAlerts) &&
       elapsed >= s.thresholdSec * 1000 &&
       (rt.alertsSent === 0 || now - rt.lastAlertAt >= s.repeatMin * 60000);
     if (due) {
@@ -197,7 +197,7 @@ async function evaluate(rt) {
 }
 
 function scheduleDue(s, rt, now) {
-  if (rt.acked || rt.alertsSent >= s.maxAlerts) return;
+  if (rt.acked || (s.maxAlerts !== 0 && rt.alertsSent >= s.maxAlerts)) return;
   const next = rt.alertsSent === 0
     ? rt.badSince + s.thresholdSec * 1000
     : rt.lastAlertAt + s.repeatMin * 60000;
@@ -227,7 +227,8 @@ async function alertStopped(s, rt, state, detail, elapsed) {
     state === "buffering" ? "一直在緩衝，可能是網路不穩。"
       : state === "unknown" ? "找不到正在播放的 Melon 分頁，可能被關掉了。"
         : `${detail}，請檢查一下。`;
-  const body = `${reason} 已持續 ${fmt(elapsed / 1000)}。（第 ${rt.alertsSent}/${s.maxAlerts} 次提醒）`;
+  const count = s.maxAlerts === 0 ? `第 ${rt.alertsSent} 次提醒` : `第 ${rt.alertsSent}/${s.maxAlerts} 次提醒`;
+  const body = `${reason} 已持續 ${fmt(elapsed / 1000)}。（${count}）`;
   await notify(ALERT_ID, title, body, true);
   await sendRemote(s, title, body, 5, ["warning"]);
   rt.lastAlert = { title, body, at: Date.now() };

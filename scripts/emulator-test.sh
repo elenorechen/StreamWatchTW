@@ -141,6 +141,12 @@ adb shell cmd statusbar collapse || true
 app_front
 shot "stopped-alerted"
 check_alive "停止提醒"
+# 重複提醒：測試設定是間隔 1 分鐘、最多 2 次
+if wait_notif "第 2/2 次提醒" 80; then
+  pass "沒處理的話 1 分鐘後會再提醒一次（第 2/2 次）"
+else
+  fail "沒有收到第 2 次提醒"
+fi
 
 # ---------- 恢復播放 ----------
 log ""

@@ -106,6 +106,9 @@ object Alerts {
         )
         builder.addAction(Notification.Action.Builder(null, "知道了", ackPi).build())
 
+        // 先收掉上一則再重新發：同一則通知原地更新時，手機不會再跳出來，重複提醒就像沒發一樣
+        cancel(ctx, id)
+        builder.setWhen(System.currentTimeMillis()).setShowWhen(true)
         notify(ctx, id, builder.build())
         if (prefs.alarmSound) playAlarm(ctx)
         sendRemote(prefs, title, body, priority = 5, tags = listOf("warning"))

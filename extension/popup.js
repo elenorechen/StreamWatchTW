@@ -60,7 +60,8 @@ function render({ rt, s }) {
       const left = s.thresholdSec - elapsed;
       detail += ` · 已持續 ${fmt(elapsed)}` + (left > 0 ? ` · 約 ${fmt(left)}後通知` : " · 即將通知");
     } else {
-      detail += ` · 已持續 ${fmt(elapsed)} · 已通知 ${rt.alertsSent}/${s.maxAlerts} 次`;
+      const sent = s.maxAlerts === 0 ? `${rt.alertsSent}` : `${rt.alertsSent}/${s.maxAlerts}`;
+      detail += ` · 已持續 ${fmt(elapsed)} · 已通知 ${sent} 次`;
     }
   }
   $("detail").textContent = detail;
