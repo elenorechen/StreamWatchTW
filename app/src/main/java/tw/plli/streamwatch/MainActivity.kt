@@ -397,10 +397,11 @@ class MainActivity : Activity() {
         if (state == WatchState.PLAYING) {
             val t = st?.songTitle
             val a = st?.artist
+            val via = st?.via?.let { "（透過 ${MonitorEngine.appLabel(this, it)} 播放）" } ?: ""
             return when {
-                t != null && a != null -> "♪ $t — $a"
-                t != null -> "♪ $t"
-                else -> "正在播放"
+                t != null && a != null -> "♪ $t — $a$via"
+                t != null -> "♪ $t$via"
+                else -> "正在播放$via"
             }
         }
         if (st == null || st.badSince == 0L) return "等待確認中…"

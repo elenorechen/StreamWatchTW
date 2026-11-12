@@ -26,6 +26,8 @@ class AppStatus(val pkg: String) {
     var state: WatchState = WatchState.IDLE
     var songTitle: String? = null
     var artist: String? = null
+    /** 實際在播放的 App（例如 Stationhead 其實是 Spotify 在播）；跟自己一樣時為 null */
+    var via: String? = null
     /** 開始不正常的時間（elapsedRealtime），0 表示目前正常 */
     var badSince: Long = 0
     var alertsSent: Int = 0
@@ -156,10 +158,12 @@ object MonitorEngine {
 
     private fun rawState(pkg: String, controllers: List<MediaController>?, st: AppStatus): WatchState {
         if (controllers == null) return WatchState.UNKNOWN
-        val mine = controllers.filter { it.packageName == pkg }
+        val sources = KnownApps.sourcesFor(pkg)
+        val mine = controllers.filter { it.packageName in sources }
         if (mine.isEmpty()) {
             st.songTitle = null
             st.artist = null
+            st.via = null
             return WatchState.UNKNOWN
         }
         var best: MediaController? = null
@@ -171,6 +175,7 @@ object MonitorEngine {
                 best = c
             }
         }
+        st.via = best?.packageName?.takeIf { it != pkg }
         val md = best?.metadata
         st.songTitle = md?.getString(MediaMetadata.METADATA_KEY_TITLE)
         st.artist = md?.getString(MediaMetadata.METADATA_KEY_ARTIST)
